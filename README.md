@@ -1,4 +1,4 @@
 # qeepass
 qeepass clone keepass
 
-[keepassx](github.com/keepassx/keepassx)
+[GitHub repository KeePassX](https://github.com/keepassx/keepassx)
