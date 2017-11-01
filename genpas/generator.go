@@ -9,19 +9,17 @@ const (
 	lowerLetters   = "abcdefghijklmnopqrstuvwxyz"
 	digits         = "0123456789"
 	specialSymbols = "!@#$%^&*?"
-	similarSymbols = "0OlI"
+	similarSymbols = "0OolIi1"
 )
 
 type Params struct {
-	// groups
 	Upper   bool // [A..Z]
 	Lower   bool // [a..z]
 	Digits  bool // [0..9]
 	Special bool // Special Symbols
 
-	// flags
-	ExcludeSimilar bool // Exclude similar symbols: (0, O) and (l, I)
-	AllSetGroups   bool // All marked groups
+	ExcludeSimilar bool // Exclude similar symbols: (0,O,o) and (l,I,i,1)
+	HasEveryGroup  bool // AllSetGroups - All marked groups
 }
 
 var DefaultParams = Params{
@@ -31,7 +29,7 @@ var DefaultParams = Params{
 	Special: true,
 
 	ExcludeSimilar: true,
-	AllSetGroups:   true,
+	HasEveryGroup:  true,
 }
 
 // Password Generator
@@ -55,7 +53,7 @@ func NewGenerator(p Params, r *Random) (*Generator, error) {
 
 	g := new(Generator)
 
-	if p.AllSetGroups {
+	if p.HasEveryGroup {
 		g.generate = func(rs []rune) {
 			if len(rs) < len(groups) {
 				panic("insufficient password length")

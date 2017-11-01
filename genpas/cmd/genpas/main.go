@@ -9,26 +9,27 @@ import (
 	"qeepass/genpas"
 )
 
-// ./pag -len=100 -count=1000 -groups="ulds" >> passwords.txt
+// ./genpas -len=100 -count=1000 -groups="ulds" >> passwords.txt
 
 func main() {
 
 	var (
-		pCount  = flag.Int("count", 1, "count of password")
-		pLen    = flag.Int("len", 8, "password length")
-		pGroups = flag.String("groups", "ulds", "u:upper, l:lower, d:digits, s:special")
-		pFlags  = flag.String("flags", "ea", "e:exclude similar symbols, a:all set groups")
+		count          = flag.Int("count", 1, "count of password")
+		length         = flag.Int("len", 8, "password length")
+		groups         = flag.String("groups", "ulds", "u:upper, l:lower, d:digits, s:special")
+		excludeSimilar = flag.Bool("exclude-similar", false, "exclude similar symbols")
+		everyGroup     = flag.Bool("every-group", false, "has every group")
 	)
 
 	flag.Parse()
 
-	err := execute(*pCount, *pLen, *pGroups, *pFlags)
+	err := execute(*count, *length, *groups, *excludeSimilar, *everyGroup)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func execute(count int, length int, groups string, flags string) error {
+func execute(count int, length int, groups string, excludeSimilar bool, everyGroup bool) error {
 	if length < 0 {
 		return errors.New("length is below the zero")
 	}
@@ -37,10 +38,8 @@ func execute(count int, length int, groups string, flags string) error {
 	if err != nil {
 		return err
 	}
-	err = parseFlags(flags, &p)
-	if err != nil {
-		return err
-	}
+	p.ExcludeSimilar = excludeSimilar
+	p.HasEveryGroup = everyGroup
 
 	g, err := genpas.NewGenerator(p, genpas.NewRandom())
 	if err != nil {
@@ -65,20 +64,6 @@ func parseGroups(groups string, p *genpas.Params) error {
 			p.Special = true
 		default:
 			return errors.New("invalid group type")
-		}
-	}
-	return nil
-}
-
-func parseFlags(flags string, p *genpas.Params) error {
-	for _, r := range flags {
-		switch r {
-		case 'e':
-			p.ExcludeSimilar = true
-		case 'a':
-			p.AllSetGroups = true
-		default:
-			return errors.New("invalid flag type")
 		}
 	}
 	return nil

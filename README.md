@@ -1,4 +1,4 @@
 # qeepass
-qeepass clone keepass
+qeepass - password management and generate utilits
 
-[GitHub repository KeePassX](https://github.com/keepassx/keepassx)
+Inspired by the KeePassX [GitHub repository](https://github.com/keepassx/keepassx)
