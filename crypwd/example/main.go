@@ -8,8 +8,8 @@ import (
 	"log"
 	"time"
 
-	"qeepass/crypwd"
-	"qeepass/genpas"
+	"github.com/gitchander/qeepass/crypwd"
+	"github.com/gitchander/qeepass/genpas"
 )
 
 func main() {

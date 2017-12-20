@@ -10,9 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"qeepass"
-	"qeepass/crypwd"
-
+	"github.com/gitchander/qeepass"
+	"github.com/gitchander/qeepass/crypwd"
 	"github.com/howeyc/gopass"
 )
 

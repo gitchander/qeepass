@@ -6,10 +6,8 @@ import (
 	"fmt"
 	"log"
 
-	"qeepass/genpas"
+	"github.com/gitchander/qeepass/genpas"
 )
-
-// ./genpas -len=100 -count=1000 -groups="ulds" >> passwords.txt
 
 func main() {
 

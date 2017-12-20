@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"log"
 
-	"qeepass"
-	"qeepass/crypwd"
+	"github.com/gitchander/qeepass"
+	"github.com/gitchander/qeepass/crypwd"
 )
 
 func makeTest() {

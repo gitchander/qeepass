@@ -10,7 +10,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"qeepass/crypwd"
+	"github.com/gitchander/qeepass/crypwd"
 )
 
 //const pass = "qwerty"
