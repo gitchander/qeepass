@@ -13,6 +13,8 @@ const (
 	sizeofUint64 = 8
 )
 
+var cryptoRandReader = rand.Reader
+
 type Random struct {
 	source io.Reader
 	buf    [sizeofUint64]byte
@@ -20,7 +22,7 @@ type Random struct {
 
 func NewRandom() *Random {
 	return &Random{
-		source: bufio.NewReader(rand.Reader),
+		source: bufio.NewReader(cryptoRandReader),
 	}
 }
 
@@ -48,6 +50,8 @@ func (r *Random) Uint64() uint64 {
 
 // To avoid modulo bias:
 // Make sure random is below the largest number where (random % n) == 0
+
+// https://zuttobenkyou.wordpress.com/2012/10/18/generating-random-numbers-without-modulo-bias/
 
 func (r *Random) Uint32n(n uint32) uint32 {
 	const max uint32 = math.MaxUint32
