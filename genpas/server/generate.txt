@@ -1,0 +1,56 @@
+{{ define "generate" }}
+
+<form method="POST">
+	<fieldset>
+		<div>
+			<label>Number of passwords</label>
+			<input type="text" name="count" value={{.Count}} />
+			<label>permissible value from 1 to 100</label>
+			<br />
+			<br />
+
+			<label>Password length</label>
+			<input type="text" name="password_length" value={{.PasswordLength}} />
+			<label>in range [8..64]</label>
+			<br />
+			<br />
+		</div>
+
+		<div>
+			<fieldset>
+				<legend>Groups of symbols</legend>
+
+				<input type="checkbox" name="upper_letters" {{.UpperLetters}} >Upper letters</input>
+				<br />
+
+				<input type="checkbox" name="lower_letters" {{.LowerLetters}} >Lower letters</input>
+				<br />
+
+				<input type="checkbox" name="digits" {{.Digits}} >Digits</input>
+				<br />
+
+				<input type="checkbox" name="special_symbols" {{.SpecialSymbols}} >Special symbols</input>
+				<br />
+			</fieldset>
+		</div>
+		<br />
+
+		<div>
+			<input type="checkbox" name="exclude_similar" {{.ExcludeSimilar}} >Exclude similar</input>
+			<br />
+
+			<input type="checkbox" name="has_every_group" {{.HasEveryGroup}} >Has every group</input>
+			<br />
+		</div>
+	</fieldset>
+	<br />
+
+	<input type="submit" value="Generate">
+	<br />
+	<br />
+
+	<textarea name="passwords" rows=20 cols=64 >{{.Result}}</textarea>
+	<br />
+</form>
+
+{{ end }}

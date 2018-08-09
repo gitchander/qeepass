@@ -1,0 +1,23 @@
+{{ define "index" }}
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>genpass</title>
+		<style>
+			.container {
+				width: 70%;
+				min-width: 600px;
+				min-height: 400px;
+				margin: 5px auto;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container" >
+			<h1>Password generator</h1>
+			{{ template "generate" . }}
+		</div>
+	</body>
+</html>
+{{ end }}
