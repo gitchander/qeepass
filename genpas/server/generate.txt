@@ -20,26 +20,26 @@
 			<fieldset>
 				<legend>Groups of symbols</legend>
 
-				<input type="checkbox" name="upper_letters" {{.UpperLetters}} >Upper letters</input>
+				<input type="checkbox" name="upper_letters" {{if .UpperLetters}}checked{{end}} >Upper letters</input>
 				<br />
 
-				<input type="checkbox" name="lower_letters" {{.LowerLetters}} >Lower letters</input>
+				<input type="checkbox" name="lower_letters" {{if .LowerLetters}}checked{{end}} >Lower letters</input>
 				<br />
 
-				<input type="checkbox" name="digits" {{.Digits}} >Digits</input>
+				<input type="checkbox" name="digits" {{if .Digits}}checked{{end}} >Digits</input>
 				<br />
 
-				<input type="checkbox" name="special_symbols" {{.SpecialSymbols}} >Special symbols</input>
+				<input type="checkbox" name="special_symbols" {{if .SpecialSymbols}}checked{{end}} >Special symbols</input>
 				<br />
 			</fieldset>
 		</div>
 		<br />
 
 		<div>
-			<input type="checkbox" name="exclude_similar" {{.ExcludeSimilar}} >Exclude similar</input>
+			<input type="checkbox" name="exclude_similar" {{if .ExcludeSimilar}}checked{{end}} >Exclude similar</input>
 			<br />
 
-			<input type="checkbox" name="has_every_group" {{.HasEveryGroup}} >Has every group</input>
+			<input type="checkbox" name="has_every_group" {{if .HasEveryGroup}}checked{{end}} >Has every group</input>
 			<br />
 		</div>
 	</fieldset>
@@ -49,7 +49,7 @@
 	<br />
 	<br />
 
-	<textarea name="passwords" rows=20 cols=64 >{{.Result}}</textarea>
+	<textarea name="passwords" readonly="true" spellcheck="false" rows=25 cols=70 >{{.Result}}</textarea>
 	<br />
 </form>
 

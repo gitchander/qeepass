@@ -18,8 +18,7 @@ import (
 // https://golang.org/doc/articles/wiki/
 
 func main() {
-	http.HandleFunc("/", handler)
-	http.HandleFunc("/generate/", generateHandler)
+	http.HandleFunc("/", generateHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -55,20 +54,20 @@ func getParamsMap(p params) map[string]string {
 	m["Count"] = strconv.Itoa(p.count)
 	m["PasswordLength"] = strconv.Itoa(p.passLen)
 
-	const on = "checked"
+	const on = "on"
 
-	boolToChecked := func(b bool) string {
-		if b {
-			return "checked"
-		}
-		return ""
+	if p.genParams.Upper {
+		m["UpperLetters"] = on
 	}
-
-	m["UpperLetters"] = boolToChecked(p.genParams.Upper)
-	m["LowerLetters"] = boolToChecked(p.genParams.Lower)
-	m["Digits"] = boolToChecked(p.genParams.Digits)
-	m["SpecialSymbols"] = boolToChecked(p.genParams.Special)
-
+	if p.genParams.Lower {
+		m["LowerLetters"] = on
+	}
+	if p.genParams.Digits {
+		m["Digits"] = on
+	}
+	if p.genParams.Special {
+		m["SpecialSymbols"] = on
+	}
 	if p.genParams.ExcludeSimilar {
 		m["ExcludeSimilar"] = on
 	}
@@ -111,22 +110,24 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 	passLen, _ := getIntValue(r.Form, "password_length")
 	passLen = cropInt(passLen, 8, 64)
 
-	p := params{
-		count:   count,
-		passLen: passLen,
-		genParams: genpas.Params{
-			Upper:   parseCheckbox(r.Form, "upper_letters"),
-			Lower:   parseCheckbox(r.Form, "lower_letters"),
-			Digits:  parseCheckbox(r.Form, "digits"),
-			Special: parseCheckbox(r.Form, "special_symbols"),
+	genParams := genpas.Params{
+		Upper:   parseCheckbox(r.Form, "upper_letters"),
+		Lower:   parseCheckbox(r.Form, "lower_letters"),
+		Digits:  parseCheckbox(r.Form, "digits"),
+		Special: parseCheckbox(r.Form, "special_symbols"),
 
-			ExcludeSimilar: parseCheckbox(r.Form, "exclude_similar"),
-			HasEveryGroup:  parseCheckbox(r.Form, "has_every_group"),
-		},
+		ExcludeSimilar: parseCheckbox(r.Form, "exclude_similar"),
+		HasEveryGroup:  parseCheckbox(r.Form, "has_every_group"),
 	}
-	checkGroups(&(p.genParams))
+	checkGroups(&genParams)
 
-	g, err := genpas.NewGenerator(p.genParams, genpas.NewRandom())
+	p := params{
+		count:     count,
+		passLen:   passLen,
+		genParams: genParams,
+	}
+
+	g, err := genpas.NewGenerator(genParams, genpas.NewRandom())
 	checkError(err)
 
 	passwords := make([]string, p.count)
