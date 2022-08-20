@@ -41,38 +41,54 @@ func (p *packet) BlockAES(password string) (cipher.Block, error) {
 	return block, nil
 }
 
-func (p *packet) WriteTo(w io.Writer) error {
+func (p *packet) WriteTo(w io.Writer) (int64, error) {
 
-	if _, err := w.Write(p.salt[:]); err != nil {
-		return err
+	var n int64
+
+	m, err := w.Write(p.salt[:])
+	n += int64(m)
+	if err != nil {
+		return n, err
 	}
 
-	if _, err := w.Write(p.iv[:]); err != nil {
-		return err
+	m, err = w.Write(p.iv[:])
+	n += int64(m)
+	if err != nil {
+		return n, err
 	}
 
-	if _, err := w.Write(p.enc); err != nil {
-		return err
+	m, err = w.Write(p.enc)
+	n += int64(m)
+	if err != nil {
+		return n, err
 	}
 
-	return nil
+	return n, nil
 }
 
-func (p *packet) ReadFrom(r io.Reader) error {
+func (p *packet) ReadFrom(r io.Reader) (int64, error) {
 
-	if _, err := io.ReadFull(r, p.salt[:]); err != nil {
-		return err
+	var n int64
+
+	m, err := io.ReadFull(r, p.salt[:])
+	n += int64(m)
+	if err != nil {
+		return n, err
 	}
 
-	if _, err := io.ReadFull(r, p.iv[:]); err != nil {
-		return err
+	m, err = io.ReadFull(r, p.iv[:])
+	n += int64(m)
+	if err != nil {
+		return n, err
 	}
 
 	var buf bytes.Buffer
-	if _, err := io.Copy(&buf, r); err != nil {
-		return err
+	wn, err := io.Copy(&buf, r)
+	n += wn
+	if err != nil {
+		return n, err
 	}
 	p.enc = buf.Bytes()
 
-	return nil
+	return n, nil
 }

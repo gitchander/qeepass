@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"strconv"
 
+	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
 
 	"github.com/gitchander/qeepass/genpas"
@@ -20,7 +20,7 @@ func main() {
 	checkError(err)
 
 	// Загружаем в билдер окно из файла Glade
-	err = b.AddFromFile("test.glade")
+	err = b.AddFromFile("assets/glade/test.glade")
 	checkError(err)
 
 	// Получаем объект главного окна по ID
@@ -30,10 +30,12 @@ func main() {
 	// Преобразуем из объекта именно окно типа gtk.Window
 	// и соединяем с сигналом "destroy" чтобы можно было закрыть
 	// приложение при закрытии окна
-	win := obj.(*gtk.Window)
-	win.Connect("destroy", func() {
+	w := obj.(*gtk.Window)
+	w.Connect("destroy", func() {
 		gtk.MainQuit()
 	})
+
+	w.SetTitle("passgen")
 
 	gw, err := NewGenWidgets(b)
 	checkError(err)
@@ -41,9 +43,15 @@ func main() {
 	gw.buttonGenerate.Connect("clicked", func() {
 		gw.generate()
 	})
+	gw.buttonClear.Connect("clicked", func() {
+		gw.clear()
+	})
+	gw.buttonCopyToClipboard.Connect("clicked", func() {
+		gw.copyToClipboard()
+	})
 
 	// Отображаем все виджеты в окне
-	win.ShowAll()
+	w.ShowAll()
 
 	// Выполняем главный цикл GTK (для отрисовки). Он остановится когда
 	// выполнится gtk.MainQuit()
@@ -68,11 +76,29 @@ type genWidgets struct {
 	checkbuttonExcludeSimilar *gtk.CheckButton
 	checkbuttonHasEveryGroup  *gtk.CheckButton
 
-	buttonGenerate    *gtk.Button
-	textviewPasswords *gtk.TextView
+	buttonGenerate        *gtk.Button
+	buttonClear           *gtk.Button
+	buttonCopyToClipboard *gtk.Button
+
+	textViewPasswords   *gtk.TextView
+	textBufferPasswords *gtk.TextBuffer
+
+	clipboard *gtk.Clipboard
 }
 
 func NewGenWidgets(b *gtk.Builder) (*genWidgets, error) {
+
+	clipboard, err := gtk.ClipboardGet(gdk.SELECTION_CLIPBOARD)
+	if err != nil {
+		return nil, err
+	}
+
+	textViewPasswords := getTextViewMust(b, "textviewPasswords")
+	textBufferPasswords, err := textViewPasswords.GetBuffer()
+	if err != nil {
+		return nil, err
+	}
+
 	return &genWidgets{
 		entryNumberOfPasswords:    getEntryMust(b, "entryNumberOfPasswords"),
 		entryPasswordLength:       getEntryMust(b, "entryPasswordLength"),
@@ -83,8 +109,29 @@ func NewGenWidgets(b *gtk.Builder) (*genWidgets, error) {
 		checkbuttonExcludeSimilar: getCheckButtonMust(b, "checkbuttonExcludeSimilar"),
 		checkbuttonHasEveryGroup:  getCheckButtonMust(b, "checkbuttonHasEveryGroup"),
 		buttonGenerate:            getButtonMust(b, "buttonGenerate"),
-		textviewPasswords:         getTextViewMust(b, "textviewPasswords"),
+		buttonClear:               getButtonMust(b, "buttonClear"),
+		buttonCopyToClipboard:     getButtonMust(b, "buttonCopyToClipboard"),
+
+		textViewPasswords:   textViewPasswords,
+		textBufferPasswords: textBufferPasswords,
+
+		clipboard: clipboard,
 	}, nil
+}
+
+func (gw *genWidgets) clear() {
+	gw.textBufferPasswords.SetText("")
+}
+
+func (gw *genWidgets) copyToClipboard() {
+	var (
+		startIter = gw.textBufferPasswords.GetStartIter()
+		endIter   = gw.textBufferPasswords.GetEndIter()
+	)
+	text, err := gw.textBufferPasswords.GetText(startIter, endIter, true)
+	checkError(err)
+
+	gw.clipboard.SetText(text)
 }
 
 func (gw *genWidgets) generate() {
@@ -127,19 +174,18 @@ func (gw *genWidgets) generate() {
 	g, err := genpas.NewGenerator(p, genpas.NewRandom())
 	checkError(err)
 
-	var buf bytes.Buffer
-	for i := 0; i < numberOfPasswords; i++ {
-		password := g.Generate(passwordLength)
-		buf.WriteString(password)
-		buf.WriteByte('\n')
+	passwords := make([]string, numberOfPasswords)
+	for i := range passwords {
+		passwords[i] = g.Generate(passwordLength)
 	}
 
 	//fmt.Println("UpperLetters:", gw.checkbuttonUpperLetters.GetActive())
 	//fmt.Println("LowerLetters:", gw.checkbuttonLowerLetters.GetActive())
 
-	textBuffer, err := gw.textviewPasswords.GetBuffer()
-	checkError(err)
-	textBuffer.SetText(buf.String())
+	endIter := gw.textBufferPasswords.GetEndIter()
+	for _, password := range passwords {
+		gw.textBufferPasswords.Insert(endIter, password+"\n")
+	}
 }
 
 func getEntry(b *gtk.Builder, name string) (*gtk.Entry, error) {

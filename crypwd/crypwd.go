@@ -24,14 +24,15 @@ func Encrypt(w io.Writer, password string, data []byte) error {
 	data = appendSHA256(data)
 
 	p.enc = encrypt_CFB(data, block, p.iv[:])
-	return p.WriteTo(w)
+	_, err = p.WriteTo(w)
+	return err
 }
 
 func Decrypt(r io.Reader, password string) ([]byte, error) {
 
 	var p packet
 
-	if err := p.ReadFrom(r); err != nil {
+	if _, err := p.ReadFrom(r); err != nil {
 		return nil, err
 	}
 
