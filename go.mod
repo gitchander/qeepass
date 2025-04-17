@@ -1,6 +1,8 @@
 module github.com/gitchander/qeepass
 
-go 1.19
+go 1.22
+
+toolchain go1.22.3
 
 require (
 	github.com/atotto/clipboard v0.1.4

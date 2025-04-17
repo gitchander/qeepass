@@ -6,5 +6,5 @@ $ sudo apt install libgtk-3-dev
 $ sudo apt install libcairo2-dev
 $ sudo apt install libglib2.0-dev
 
-compile:
+prev version compile (not nead now!):
 $ go build -tags gtk_3_18
